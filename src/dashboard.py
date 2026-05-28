@@ -25,9 +25,13 @@ st.set_page_config(
 # LEER DATOS
 # ----------------------------------
 
-df = pd.read_csv(
-    "outputs/concentrado_general.csv"
-)
+from procesador_drive import generar_dataframe
+
+with st.spinner(
+    "Cargando información desde Drive..."
+):
+
+    df = generar_dataframe()
 
 # ----------------------------------
 # SIDEBAR
