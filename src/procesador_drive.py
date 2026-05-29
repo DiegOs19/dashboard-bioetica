@@ -51,9 +51,9 @@ def generar_dataframe():
     for anio, archivo in excels.items():
 
         HOJAS_EXCLUIDAS = [
-              "original",
+            "original",
              "concentrado",
-             "supervisiones",
+             "supervisiones2024",
              "supervision",
              "resumen",
              "general"

@@ -14,7 +14,7 @@ ARCHIVOS = {
 def leer_excel_drive(file_id):
 
     url = (
-        f"https://drive.google.com/uc?id={file_id}"
+      f"https://drive.google.com/uc?export=download&id={file_id}"
     )
 
     df = pd.read_excel(
