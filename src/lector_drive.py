@@ -1,50 +1,162 @@
+import io
 import pandas as pd
 
-# --------------------------
-# IDS DE DRIVE
-# --------------------------
-
-ARCHIVOS = {
-    2024: "1Wuct2Cj55GlmRMLVUr-pljAt5s8SnpSdjS-sj-H3_4Y",
-    2025: "14jmDthpc8Zs5Ekp0VLLtjeeTT0QhmAsMVFHDEnIA30A",
-    2026: "1cT-NPquELjaeWNRisemfeMaHsf6XacchepO0oClvSZc"
-}
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 
 
-def leer_excel_drive(file_id):
+# ----------------------------------
+# CONFIGURACIÓN
+# ----------------------------------
 
-    url = (
-      f"https://drive.google.com/uc?export=download&id={file_id}"
+CARPETA_ID = "18HSSWXvMr_zEtPwVMb3xOjAE8I9CYfkY"
+
+SCOPES = [
+    "https://www.googleapis.com/auth/drive.readonly"
+]
+
+CREDENTIALS_FILE = "dashboard-bioetica-452e687d96e7.json"
+
+
+# ----------------------------------
+# CONEXIÓN DRIVE
+# ----------------------------------
+
+def conectar_drive():
+
+    credenciales = service_account.Credentials.from_service_account_file(
+        CREDENTIALS_FILE,
+        scopes=SCOPES
     )
 
-    df = pd.read_excel(
-        url,
+    servicio = build(
+        "drive",
+        "v3",
+        credentials=credenciales
+    )
+
+    return servicio
+
+
+# ----------------------------------
+# LISTAR ARCHIVOS
+# ----------------------------------
+
+def listar_archivos_excel():
+
+    servicio = conectar_drive()
+
+    resultado = servicio.files().list(
+     q=f"'{CARPETA_ID}' in parents and trashed = false",
+     fields="files(id,name,mimeType,shortcutDetails)"
+    ).execute()
+
+    archivos = resultado.get(
+        "files",
+        []
+    )
+
+    excels = []
+
+    for archivo in archivos:
+        
+        print(
+            archivo["name"],
+            archivo["mimeType"]
+        )
+        print("\nARCHIVO:")
+        print("Nombre:", archivo["name"])
+        print("Tipo:", archivo["mimeType"])
+
+        if "shortcutDetails" in archivo:
+          print(
+             "Destino:",
+             archivo["shortcutDetails"]
+            )
+        
+
+        nombre = archivo["name"].lower()
+
+        if (
+            "cedula" in nombre
+            or "cédula" in nombre
+        ):
+            excels.append(archivo)
+
+    return excels
+
+
+# ----------------------------------
+# DESCARGAR EXCEL
+# ----------------------------------
+
+def descargar_excel(file_id):
+
+    servicio = conectar_drive()
+
+    request = servicio.files().export_media(
+        fileId=file_id,
+        mimeType=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    )
+
+    archivo = io.BytesIO()
+
+    downloader = MediaIoBaseDownload(
+        archivo,
+        request
+    )
+
+    done = False
+
+    while not done:
+
+        status, done = downloader.next_chunk()
+
+    archivo.seek(0)
+
+    return pd.read_excel(
+        archivo,
         sheet_name=None
     )
 
-    return df
 
+# ----------------------------------
+# OBTENER EXCELS
+# ----------------------------------
 
 def obtener_excels():
 
+    excels_drive = listar_archivos_excel()
+
     datos = {}
 
-    for anio, file_id in ARCHIVOS.items():
+    for archivo in excels_drive:
 
         try:
 
-            datos[anio] = leer_excel_drive(
-                file_id
-            )
+            nombre = archivo["name"]
 
             print(
-                f"{anio} cargado"
+                f"Cargando: {nombre}"
             )
+
+            target_id = (
+              archivo["shortcutDetails"]["targetId"]
+            )
+            
+            hojas = descargar_excel(
+              target_id
+            )
+
+            datos[nombre] = hojas
 
         except Exception as e:
 
             print(
-                f"Error {anio}: {e}"
+                f"Error {nombre}: {e}"
             )
 
     return datos

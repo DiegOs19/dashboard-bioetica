@@ -13,6 +13,129 @@ MAX_OPERATIVIDAD = 16
 MAX_TOTAL = 43
 
 # ----------------------------------
+# ETIQUETAS DE PORCENTAJE
+# ----------------------------------
+
+def agregar_porcentajes(
+    ax,
+    x,
+    integracion,
+    recursos,
+    procedimental,
+    operatividad
+):
+
+    def obtener_tamano(valor):
+
+        if valor >= 8:
+            return 10
+
+        elif valor >= 5:
+            return 9
+
+        elif valor >= 3:
+            return 8
+
+        elif valor >= 2:
+            return 7
+
+        else:
+            return 6
+
+    p_integracion = min(
+        (integracion / MAX_INTEGRACION) * 100,
+        100
+    )
+
+    p_recursos = min(
+        (recursos / MAX_RECURSOS) * 100,
+        100
+    )
+
+    p_procedimental = min(
+        (procedimental / MAX_PROCEDIMENTAL) * 100,
+        100
+    )
+
+    p_operatividad = min(
+        (operatividad / MAX_OPERATIVIDAD) * 100,
+        100
+    )
+
+    # ----------------------------
+    # INTEGRACIÓN
+    # ----------------------------
+
+    if integracion > 0:
+
+        ax.text(
+            x,
+            integracion / 2,
+            f"{p_integracion:.0f}%",
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=obtener_tamano(integracion),
+            fontweight="bold"
+        )
+
+    # ----------------------------
+    # RECURSOS
+    # ----------------------------
+
+    if recursos > 0:
+
+        ax.text(
+            x,
+            integracion + recursos / 2,
+            f"{p_recursos:.0f}%",
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=obtener_tamano(recursos),
+            fontweight="bold"
+        )
+
+    # ----------------------------
+    # PROCEDIMENTAL
+    # ----------------------------
+
+    if procedimental > 0:
+
+        ax.text(
+            x,
+            integracion
+            + recursos
+            + procedimental / 2,
+            f"{p_procedimental:.0f}%",
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=obtener_tamano(procedimental),
+            fontweight="bold"
+        )
+
+    # ----------------------------
+    # OPERATIVIDAD
+    # ----------------------------
+
+    if operatividad > 0:
+
+        ax.text(
+            x,
+            integracion
+            + recursos
+            + procedimental
+            + operatividad / 2,
+            f"{p_operatividad:.0f}%",
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=obtener_tamano(operatividad),
+            fontweight="bold"
+        )
+
+# ----------------------------------
 # CONFIGURACIÓN
 # ----------------------------------
 
@@ -27,11 +150,11 @@ st.set_page_config(
 
 from procesador_drive import generar_dataframe
 
-with st.spinner(
-    "Cargando información desde Drive..."
-):
+@st.cache_data(ttl=300)
+def cargar_datos():
+    return generar_dataframe()
 
-    df = generar_dataframe()
+df = cargar_datos()
 
 # ----------------------------------
 # SIDEBAR
@@ -126,73 +249,65 @@ if tipo == "General estatal":
     )
 
     ax.legend()
-    # Mostrar porcentajes dentro de barras
+
     for i in range(len(promedio)):
+        agregar_porcentajes(
+            ax,
+            promedio["anio"].iloc[i],
+            promedio["integracion"].iloc[i],
+            promedio["recursos"].iloc[i],
+            promedio["procedimental"].iloc[i],
+            promedio["operatividad"].iloc[i]
+        )
 
-     x = promedio["anio"].iloc[i]
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(
+     "Hospitales",
+     df["hospital"].nunique()
+    )
 
-     integracion = promedio["integracion"].iloc[i]
-     recursos = promedio["recursos"].iloc[i]
-     procedimental = promedio["procedimental"].iloc[i]
-     operatividad = promedio["operatividad"].iloc[i]
+    ultimo_anio = df["anio"].max()
 
-     p_integracion = (
-         integracion / MAX_INTEGRACION
-     ) * 100
+    actual = df[
+     df["anio"] == ultimo_anio
+    ]
 
-     p_recursos = (
-         recursos / MAX_RECURSOS
-     ) * 100
+    promedio_actual = (
+       (
+          actual["integracion"]
+          + actual["recursos"]
+          + actual["procedimental"]
+          + actual["operatividad"]
+        ).mean()
+       / 43
+    ) * 100
 
-     p_procedimental = (
-         procedimental / MAX_PROCEDIMENTAL
-     ) * 100
+    col2.metric(
+     "Promedio Estatal",
+     f"{promedio_actual:.1f}%"
+    )
 
-     p_operatividad = (
-         operatividad / MAX_OPERATIVIDAD
-     ) * 100
+    actual["total"] = (
+     actual["integracion"]
+     + actual["recursos"]
+     + actual["procedimental"]
+     + actual["operatividad"]
+    )
 
-     ax.text(
-         x,
-         integracion / 2,
-         f"{p_integracion:.0f}%",
-         ha="center",
-         color="white",
-         fontweight="bold"
-      )
+    mejor = actual.loc[
+     actual["total"].idxmax()
+    ]
 
-     ax.text(
-         x,
-         integracion + recursos / 2,
-         f"{p_recursos:.0f}%",
-         ha="center",
-         color="white",
-         fontweight="bold"
-      )
+    col3.metric(
+     "Mejor Hospital",
+     mejor["hospital"]
+    )
 
-     ax.text(
-         x,
-         integracion
-         + recursos
-         + procedimental / 2,
-         f"{p_procedimental:.0f}%",
-         ha="center",
-         color="white",
-         fontweight="bold"
-      )
-
-     ax.text(
-         x,
-         integracion
-         + recursos
-         + procedimental
-         + operatividad / 2,
-         f"{p_operatividad:.0f}%",
-         ha="center",
-         color="white",
-         fontweight="bold"
-      )
-
+    col4.metric(
+     "Último Año",
+     int(ultimo_anio)
+    )
+    plt.tight_layout()
     st.pyplot(fig)
 
 # ==================================
@@ -227,8 +342,10 @@ elif tipo == "Comparación anual":
     )
 
     fig, ax = plt.subplots(
-        figsize=(12,6)
+        figsize=(16,8)
     )
+
+    ax.set_ylim(0, 46)
 
     ax.bar(
         datos["hospital"],
@@ -268,77 +385,28 @@ elif tipo == "Comparación anual":
         rotation=45
     )
 
+    plt.tight_layout()
+
+    ax.set_ylabel(
+     "Puntaje obtenido"
+    )
+
+    ax.set_xlabel(
+      "Hospital"
+    )
+
     ax.legend()
 
     for i in range(len(datos)):
 
-     x = datos["hospital"].iloc[i]
-
-     integracion = datos["integracion"].iloc[i]
-     recursos = datos["recursos"].iloc[i]
-     procedimental = datos["procedimental"].iloc[i]
-     operatividad = datos["operatividad"].iloc[i]
-
-     p_integracion = (
-         integracion / MAX_INTEGRACION
-      ) * 100
-
-     p_recursos = (
-         recursos / MAX_RECURSOS
-      ) * 100
-
-     p_procedimental = (
-         procedimental / MAX_PROCEDIMENTAL
-      ) * 100
-
-     p_operatividad = (
-         operatividad / MAX_OPERATIVIDAD
-      ) * 100
-
-     ax.text(
-         x,
-         integracion / 2,
-         f"{p_integracion:.0f}%",
-         ha="center",
-         color="white",
-         fontsize=9,
-         fontweight="bold"
-      )
-
-     ax.text(
-         x,
-         integracion + recursos / 2,
-         f"{p_recursos:.0f}%",
-         ha="center",
-         color="white",
-         fontsize=9,
-         fontweight="bold"
-      )
-
-     ax.text(
-         x,
-         integracion
-         + recursos
-         + procedimental / 2,
-         f"{p_procedimental:.0f}%",
-         ha="center",
-         color="white",
-         fontsize=9,
-         fontweight="bold"
-      )
-
-     ax.text(
-         x,
-         integracion
-         + recursos
-         + procedimental
-         + operatividad / 2,
-         f"{p_operatividad:.0f}%",
-         ha="center",
-         color="white",
-         fontsize=9,
-         fontweight="bold"
-      )
+     agregar_porcentajes(
+          ax,
+          datos["hospital"].iloc[i],
+          datos["integracion"].iloc[i],
+          datos["recursos"].iloc[i],
+          datos["procedimental"].iloc[i],
+          datos["operatividad"].iloc[i]
+        )
 
     st.pyplot(fig)
 
@@ -430,68 +498,13 @@ elif tipo == "Hospital individual":
         ax.legend()
 
         for i in range(len(datos)):
-
-         x = datos["anio"].iloc[i]
-
-         integracion = datos["integracion"].iloc[i]
-         recursos = datos["recursos"].iloc[i]
-         procedimental = datos["procedimental"].iloc[i]
-         operatividad = datos["operatividad"].iloc[i]
-
-         p_integracion = (
-              integracion / MAX_INTEGRACION
-           ) * 100
-
-         p_recursos = (
-             recursos / MAX_RECURSOS
-           ) * 100
-
-         p_procedimental = (
-             procedimental / MAX_PROCEDIMENTAL
-           ) * 100
-
-         p_operatividad = (
-             operatividad / MAX_OPERATIVIDAD
-           ) * 100
-
-         ax.text(
-              x,
-             integracion / 2,
-             f"{p_integracion:.0f}%",
-              ha="center",
-             color="white",
-             fontweight="bold"
-           )
-
-         ax.text(
-              x,
-             integracion + recursos / 2,
-             f"{p_recursos:.0f}%",
-             ha="center",
-             color="white",
-             fontweight="bold"
-           )
-
-         ax.text(
-             x,
-             integracion
-             + recursos
-             + procedimental / 2,
-             f"{p_procedimental:.0f}%",
-             ha="center",
-             color="white",
-             fontweight="bold"
-           )
-
-         ax.text(
-             x,
-             integracion
-             + recursos
-             + procedimental
-             + operatividad / 2,
-             f"{p_operatividad:.0f}%",
-             ha="center",
-             color="white",
-            fontweight="bold"
-           )
+            agregar_porcentajes(
+                ax,
+                datos["anio"].iloc[i],
+                datos["integracion"].iloc[i],
+                datos["recursos"].iloc[i],
+                datos["procedimental"].iloc[i],
+                datos["operatividad"].iloc[i]
+            )
+        plt.tight_layout()
         st.pyplot(fig)

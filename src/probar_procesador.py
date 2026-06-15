@@ -1,23 +1,15 @@
-from procesador_drive import obtener_excels
+from procesador_drive import generar_dataframe
 
-excels = obtener_excels()
+df = generar_dataframe()
 
-# tomar solo un hospital de ejemplo
-archivo = excels[2026]
+print("\nCOLUMNAS:")
+print(df.columns.tolist())
 
-hospital = "CHBHumanitas"
+print("\nTAMAÑO:")
+print(df.shape)
 
-hoja = archivo[hospital]
+print("\nHOSPITALES ÚNICOS:")
+print(sorted(df["hospital"].unique()))
 
-for i in range(len(hoja)):
-
-    fila = hoja.iloc[i]
-
-    texto = " ".join(
-        map(str, fila.values)
-    )
-
-    if "subtotal" in texto.lower():
-
-        print("\nFILA:", i)
-        print(texto)
+print("\nPRIMERAS 30 FILAS:")
+print(df.head(30))
