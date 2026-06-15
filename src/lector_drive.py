@@ -15,9 +15,7 @@ import streamlit as st
 
 CARPETA_ID = "18HSSWXvMr_zEtPwVMb3xOjAE8I9CYfkY"
 
-SCOPES = [
-    "https://www.googleapis.com/auth/drive.readonly"
-]
+SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
 
 # ----------------------------------
