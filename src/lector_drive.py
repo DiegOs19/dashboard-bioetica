@@ -5,6 +5,9 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
+import json
+import streamlit as st
+
 
 # ----------------------------------
 # CONFIGURACIÓN
@@ -16,8 +19,6 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly"
 ]
 
-CREDENTIALS_FILE = "dashboard-bioetica-452e687d96e7.json"
-
 
 # ----------------------------------
 # CONEXIÓN DRIVE
@@ -25,10 +26,29 @@ CREDENTIALS_FILE = "dashboard-bioetica-452e687d96e7.json"
 
 def conectar_drive():
 
-    credenciales = service_account.Credentials.from_service_account_file(
-        CREDENTIALS_FILE,
-        scopes=SCOPES
-    )
+    try:
+
+        credenciales_json = json.loads(
+            st.secrets["GOOGLE_CREDENTIALS"]
+        )
+
+        credenciales = (
+            service_account.Credentials
+            .from_service_account_info(
+                credenciales_json,
+                scopes=SCOPES
+            )
+        )
+
+    except:
+
+        credenciales = (
+            service_account.Credentials
+            .from_service_account_file(
+                "dashboard-bioetica-452e687d96e7.json",
+                scopes=SCOPES
+            )
+        )
 
     servicio = build(
         "drive",
