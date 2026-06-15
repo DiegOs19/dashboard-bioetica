@@ -29,7 +29,7 @@ def conectar_drive():
     try:
 
         credenciales_json = json.loads(
-            st.secrets["GOOGLE_CREDENTIALS"]
+            st.secrets["GOOGLE_CREDENTIAL"]
         )
 
         credenciales = (
