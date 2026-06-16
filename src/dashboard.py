@@ -167,18 +167,23 @@ col1, col2, col3 = st.columns(
 with col1:
     st.image(
         "assets/cobiet.jpg",
-        width=560
+        width=240
     )
 
 with col3:
     st.image(
         "assets/sesa.jpg",
-        width=100
+        width=140
     )
 
 with col2:
-    st.title(
-        "Dashboard de Bioética"
+    st.markdown(
+        """
+        <h1 style='text-align:center; margin-top:25px;'>
+        Dashboard de Bioética
+        </h1>
+        """,
+        unsafe_allow_html=True
     )
 
 st.sidebar.title("Panel de análisis")
