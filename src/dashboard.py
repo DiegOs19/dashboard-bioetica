@@ -167,13 +167,13 @@ col1, col2, col3 = st.columns(
 with col1:
     st.image(
         "assets/cobiet.jpg",
-        width=240
+        width=200
     )
 
 with col3:
     st.image(
         "assets/sesa.jpg",
-        width=140
+        width=200
     )
 
 with col2:
