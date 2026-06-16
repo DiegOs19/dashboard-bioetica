@@ -44,16 +44,14 @@ def conectar_drive():
 
     except Exception as e:
 
-        print("ERROR EN SECRETS:")
-        print(e)
+        import traceback
 
-        credenciales = (
-            service_account.Credentials
-            .from_service_account_file(
-                "dashboard-bioetica-452e687d96e7.json",
-                scopes=SCOPES
-            )
-        )
+        print("ERROR EN SECRETS:")
+        print(type(e))
+        print(str(e))
+        traceback.print_exc()
+
+        raise e
 
     servicio = build(
         "drive",
