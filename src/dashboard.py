@@ -183,7 +183,7 @@ if tipo == "General estatal":
 
     MAX_TOTAL = 43
 
-    promedio = df.groupby("año").agg({
+    promedio = df.groupby("anio").agg({
         "integracion": "mean",
         "recursos": "mean",
         "procedimental": "mean",
@@ -207,20 +207,20 @@ if tipo == "General estatal":
     )
 
     ax.bar(
-        promedio["año"],
+        promedio["anio"],
         promedio["integracion"],
         label="Integración"
     )
 
     ax.bar(
-        promedio["año"],
+        promedio["anio"],
         promedio["recursos"],
         bottom=promedio["integracion"],
         label="Recursos"
     )
 
     ax.bar(
-        promedio["año"],
+        promedio["anio"],
         promedio["procedimental"],
         bottom=(
             promedio["integracion"]
@@ -230,7 +230,7 @@ if tipo == "General estatal":
     )
 
     ax.bar(
-        promedio["año"],
+        promedio["anio"],
         promedio["operatividad"],
         bottom=(
             promedio["integracion"]
@@ -253,7 +253,7 @@ if tipo == "General estatal":
     for i in range(len(promedio)):
         agregar_porcentajes(
             ax,
-            promedio["año"].iloc[i],
+            promedio["anio"].iloc[i],
             promedio["integracion"].iloc[i],
             promedio["recursos"].iloc[i],
             promedio["procedimental"].iloc[i],
@@ -266,10 +266,10 @@ if tipo == "General estatal":
      df["hospital"].nunique()
     )
 
-    ultimo_anio = df["año"].max()
+    ultimo_anio = df["anio"].max()
 
     actual = df[
-     df["año"] == ultimo_anio
+     df["anio"] == ultimo_anio
     ]
 
     promedio_actual = (
@@ -322,11 +322,11 @@ elif tipo == "Comparación anual":
 
     anio = st.selectbox(
         "Selecciona año",
-        sorted(df["año"].unique())
+        sorted(df["anio"].unique())
     )
 
     datos = df[
-        df["año"] == anio
+        df["anio"] == anio
     ]
 
     datos["total"] = (
@@ -430,7 +430,7 @@ elif tipo == "Hospital individual":
     ]
 
     datos = datos.sort_values(
-        by="año"
+        by="anio"
     )
 
     st.subheader(
@@ -460,20 +460,20 @@ elif tipo == "Hospital individual":
         )
 
         ax.bar(
-            datos["año"],
+            datos["anio"],
             datos["integracion"],
             label="Integración"
         )
 
         ax.bar(
-            datos["año"],
+            datos["anio"],
             datos["recursos"],
             bottom=datos["integracion"],
             label="Recursos"
         )
 
         ax.bar(
-            datos["año"],
+            datos["anio"],
             datos["procedimental"],
             bottom=(
                 datos["integracion"]
@@ -483,7 +483,7 @@ elif tipo == "Hospital individual":
         )
 
         ax.bar(
-            datos["año"],
+            datos["anio"],
             datos["operatividad"],
             bottom=(
                 datos["integracion"]
@@ -500,7 +500,7 @@ elif tipo == "Hospital individual":
         for i in range(len(datos)):
             agregar_porcentajes(
                 ax,
-                datos["año"].iloc[i],
+                datos["anio"].iloc[i],
                 datos["integracion"].iloc[i],
                 datos["recursos"].iloc[i],
                 datos["procedimental"].iloc[i],
