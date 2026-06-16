@@ -436,8 +436,22 @@ elif tipo == "Hospital individual":
     st.subheader(
         f"Histórico de {hospital}"
     )
+    
+    datos_mostrar = datos.rename(
+       columns={
+         "anio": "Año",
+         "hospital": "Hospital",
+         "integracion": "Integración",
+         "recursos": "Recursos",
+         "procedimental": "Procedimental",
+         "operatividad": "Operatividad"
+       }
+    )
 
-    st.dataframe(datos)
+    st.dataframe(
+      datos_mostrar,
+      use_container_width=True
+    )
 
     # Verificar comparabilidad
     if len(datos) < 2:
