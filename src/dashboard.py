@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from PIL import Image
 # ----------------------------------
 # MÁXIMOS POR DOMINIO
 # ----------------------------------
@@ -159,6 +159,27 @@ df = cargar_datos()
 # ----------------------------------
 # SIDEBAR
 # ----------------------------------
+
+col1, col2, col3 = st.columns(
+    [1, 3, 1]
+)
+
+with col1:
+    st.image(
+        "assets/cobiet.jpg",
+        width=150
+    )
+
+with col3:
+    st.image(
+        "assets/sesa.jpg",
+        width=150
+    )
+
+with col2:
+    st.title(
+        "Dashboard de Bioética"
+    )
 
 st.sidebar.title("Panel de análisis")
 
