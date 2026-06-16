@@ -26,17 +26,24 @@ def conectar_drive():
 
     try:
 
-     secreto = st.secrets["GOOGLE_CREDENTIAL"]
+        secreto = st.secrets["GOOGLE_CREDENTIAL"]
 
-     print(type(secreto))
-     print(secreto[:300])
+        credenciales_json = json.loads(
+            secreto
+        )
 
-     credenciales = json.loads(secreto)
+        credenciales = (
+            service_account.Credentials
+            .from_service_account_info(
+                credenciales_json,
+                scopes=SCOPES
+            )
+        )
 
     except Exception as e:
 
-     print(e)
-     raise
+        print(e)
+        raise
 
     servicio = build(
         "drive",
