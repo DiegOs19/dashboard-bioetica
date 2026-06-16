@@ -28,7 +28,7 @@ def conectar_drive():
 
         print("Intentando usar Streamlit Secrets")
 
-        credenciales_json = json.loads(
+        credenciales_json = dict(
             st.secrets["GOOGLE_CREDENTIAL"]
         )
 
