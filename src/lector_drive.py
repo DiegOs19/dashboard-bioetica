@@ -26,32 +26,17 @@ def conectar_drive():
 
     try:
 
-        print("Intentando usar Streamlit Secrets")
+     secreto = st.secrets["GOOGLE_CREDENTIAL"]
 
-        credenciales_json = dict(
-            st.secrets["GOOGLE_CREDENTIAL"]
-        )
+     print(type(secreto))
+     print(secreto[:300])
 
-        credenciales = (
-            service_account.Credentials
-            .from_service_account_info(
-                credenciales_json,
-                scopes=SCOPES
-            )
-        )
-
-        print("Secrets cargados correctamente")
+     credenciales = json.loads(secreto)
 
     except Exception as e:
 
-        import traceback
-
-        print("ERROR EN SECRETS:")
-        print(type(e))
-        print(str(e))
-        traceback.print_exc()
-
-        raise e
+     print(e)
+     raise
 
     servicio = build(
         "drive",
