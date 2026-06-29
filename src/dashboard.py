@@ -180,7 +180,7 @@ with col2:
     st.markdown(
         """
         <h1 style='text-align:center; margin-top:25px;'>
-        Comisión de Bioética
+        Comisión de Bioética del Estado de Tlaxcala
         </h1>
         """,
         unsafe_allow_html=True
@@ -204,7 +204,7 @@ tipo = st.sidebar.radio(
 if tipo == "General estatal":
 
     st.title(
-        "Evolución estatal de comités de bioética"
+        "Evolución de los CBAS y de CEI"
     )
 
     MAX_TOTAL = 43
@@ -275,6 +275,13 @@ if tipo == "General estatal":
     )
 
     ax.legend()
+    ax.set_xticks(promedio["anio"])
+    ax.set_xticklabels(promedio["anio"].astype(int))
+
+    ax.set_xlim(
+      min(promedio["anio"]) - 0.5,
+      max(promedio["anio"]) + 0.5
+    )
 
     for i in range(len(promedio)):
         agregar_porcentajes(
@@ -536,6 +543,14 @@ elif tipo == "Hospital individual":
         ax.set_xlabel("Año")
         ax.set_ylabel("Puntaje")
         ax.legend()
+
+        ax.set_xticks(datos["anio"])
+        ax.set_xticklabels(datos["anio"].astype(int))
+
+        ax.set_xlim(
+          min(datos["anio"]) - 0.5,
+          max(datos["anio"]) + 0.5
+        )
 
         for i in range(len(datos)):
             agregar_porcentajes(
